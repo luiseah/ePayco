@@ -1,10 +1,7 @@
-# Use the base image of PHP-FPM with Alpine
+# Usar una imagen base de PHP con FPM y Alpine para un entorno ligero
 FROM php:8.3-fpm-alpine
 
-# Set the working directory
-WORKDIR /var/www
-
-# Install system dependencies
+# Instalar dependencias necesarias
 RUN apk add --no-cache \
     git \
     curl \
@@ -27,27 +24,35 @@ RUN apk add --no-cache \
     autoconf \
     build-base
 
-# Install PHP extensions required for Laravel
+# Instalar extensiones de PHP necesarias para Laravel
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && \
     docker-php-ext-install pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd intl zip
 
 # Install Redis extension
 RUN pecl install redis && docker-php-ext-enable redis
 
-# Install Composer
-COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
+# Instalar Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy the Laravel application to the container
-COPY . /var/www/html
+# Configurar el directorio de trabajo
+WORKDIR /var/www
 
-# Change permissions for storage and cache directories
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Copiar el código fuente de Laravel
+COPY . /var/www
+
+# Instalar las dependencias de Composer
+#RUN composer install --no-dev --optimize-autoloader
+
+# Asignar los permisos necesarios
+RUN chown -R www-data:www-data /var/www \
+    && chmod -R 755 /var/www/storage \
+    && chmod -R 755 /var/www/bootstrap/cache
 
 # Set PHP memory limit
 ARG PHP_MEMORY_LIMIT=512M
 RUN echo "memory_limit = ${PHP_MEMORY_LIMIT}" > /usr/local/etc/php/conf.d/memory-limit.ini
 
-# Expose port 9000 (default for php-fpm)
+# Exponer el puerto 9000 para PHP-FPM
 EXPOSE 9000
 
 # Default command to start php-fpm
