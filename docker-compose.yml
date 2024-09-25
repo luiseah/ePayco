@@ -1,0 +1,77 @@
+services:
+
+  webserver:
+    image: nginx:alpine
+    restart: unless-stopped
+    container_name: webserver
+    ports:
+      - 9000:9000
+      - 80:80
+    volumes:
+      - .docker/nginx:/etc/nginx/conf.d
+      - ./backend:/var/www
+    depends_on:
+      - soap
+      - rest
+    networks:
+      - wallet-network
+
+  soap:
+    build:
+      context: ./wallet-soap
+      dockerfile: Dockerfile
+    container_name: soap
+    restart: unless-stopped
+    depends_on:
+      - db
+      - cache
+    links:
+      - db
+    volumes:
+      - ./wallet-soap:/var/www
+    networks:
+      - wallet-network
+
+  rest:
+    build:
+      context: ./wallet-rest
+      dockerfile: Dockerfile
+    container_name: soap
+    restart: unless-stopped
+    volumes:
+      - ./wallet-soap:/var/www
+    networks:
+      - wallet-network
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: wallet
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - wallet-network
+
+  cache:
+    image: redis:alpine
+    container_name: cache
+    restart: unless-stopped
+    ports:
+      - 6379:6379
+    volumes:
+      - redis:/data
+    networks:
+      - wallet-network
+
+volumes:
+  redis:
+  db_data:
+
+networks:
+  wallet-network:
+    driver: bridge
