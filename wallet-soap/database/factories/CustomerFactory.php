@@ -17,7 +17,10 @@ class CustomerFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'document_id' => fake()->numerify('#########'),
+            'name' => fake()->name(),
+            'email'=> fake()->email(),
+            'phone' => fake()->phoneNumber(),
         ];
     }
 }

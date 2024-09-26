@@ -14,9 +14,18 @@
 */
 
 
-$router->post('customer', [
+$router->post('customers', [
     'as' => 'customer', 'uses' => 'CustomerController@store'
 ]);
+
+$router->group(['prefix' => 'wallets'], function () use ($router) {
+    $router->post('/recharges', ['uses' => 'WalletController@recharge']);
+
+    $router->post('/payments', ['uses' => 'WalletController@payment']);
+
+    $router->post('/payments/confirm', ['uses' => 'WalletController@payment']);
+});
+
 
 $router->get('/', function () use ($router) {
 

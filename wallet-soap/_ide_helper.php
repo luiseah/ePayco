@@ -19,17 +19,17 @@ namespace App\Facades {
      *
      */        class Api {
                     /**
-         * 
+         * Returns the response structure.
          *
          * @param string $success
          * @param string $cod_error
          * @param string $message_error
          * @param array $data
-         * @return \App\Services\Responses\ApiResponse 
+         * @return \App\Services\ApiResponse 
          * @static 
          */        public static function response($success, $cod_error, $message_error, $data)
         {
-                        /** @var \App\Services\Responses\ApiResponse $instance */
+                        /** @var \App\Services\ApiResponse $instance */
                         return $instance->response($success, $cod_error, $message_error, $data);
         }
             }
@@ -37,6 +37,26 @@ namespace App\Facades {
      * 
      *
      */        class Customer {
+                    /**
+         * 
+         *
+         * @param $attributes
+         * @return mixed 
+         * @static 
+         */        public static function find($attributes)
+        {
+                        /** @var \App\Services\CustomerService $instance */
+                        return $instance->find($attributes);
+        }
+                    /**
+         * 
+         *
+         * @static 
+         */        public static function rules($attributes)
+        {
+                        /** @var \App\Services\CustomerService $instance */
+                        return $instance->rules($attributes);
+        }
                     /**
          * Register a new customer.
          * 
@@ -46,7 +66,7 @@ namespace App\Facades {
          * If an error occurs, an API response with the error message is returned.
          *
          * @param array $attributes Array of customer attributes (document ID, name, email, phone).
-         * @return \App\Services\Responses\ApiResponse The API response containing the result of the operation.
+         * @return \App\Services\ApiResponse The API response containing the result of the operation.
          * @static 
          */        public static function register($attributes)
         {
@@ -62,7 +82,7 @@ namespace App\Facades {
          * 
          *
          * @param array $attributes
-         * @return mixed 
+         * @return \App\Services\ApiResponse The API response indicating the recharge status.
          * @static 
          */        public static function recharge($attributes)
         {
@@ -72,13 +92,52 @@ namespace App\Facades {
                     /**
          * 
          *
-         * @param \Customer $customer
+         * @param \App\Models\Customer $customer
          * @return \Wallet 
          * @static 
          */        public static function create($customer)
         {
                         /** @var \App\Services\WalletService $instance */
                         return $instance->create($customer);
+        }
+                    /**
+         * 
+         *
+         * @param array $attributes
+         * @return \App\Services\ApiResponse 
+         * @static 
+         */        public static function payment($attributes)
+        {
+                        /** @var \App\Services\WalletService $instance */
+                        return $instance->payment($attributes);
+        }
+                    /**
+         * 
+         *
+         * @param array $attributes
+         * @return \App\Services\ApiResponse 
+         * @static 
+         */        public static function paymentConfirmation($attributes)
+        {
+                        /** @var \App\Services\WalletService $instance */
+                        return $instance->paymentConfirmation($attributes);
+        }
+            }
+            /**
+     * 
+     *
+     */        class Transaction {
+                    /**
+         * 
+         *
+         * @param $attributes
+         * @return mixed 
+         * @throws IncompleteTransactionAttributesException
+         * @static 
+         */        public static function find($attributes)
+        {
+                        /** @var \App\Services\TransactionService $instance */
+                        return $instance->find($attributes);
         }
             }
     }
@@ -159,6 +218,7 @@ namespace  {
             class Api extends \App\Facades\Api {}
             class Customer extends \App\Facades\Customer {}
             class Wallet extends \App\Facades\Wallet {}
+            class Transaction extends \App\Facades\Transaction {}
     }
 
 

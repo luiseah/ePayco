@@ -3,24 +3,65 @@
 namespace App\Http\Controllers;
 
 use App\Facades\Wallet;
-use App\Http\Requests\StoreCustomerRequest;
-use App\Http\Requests\UpdateCustomerRequest;
 use Illuminate\Http\Request;
 
 class WalletController extends Controller
 {
     /**
-     * Store a newly created resource in storage.
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function recharge(Request $request)
     {
-       $result =  Wallet::customerRegistration(
+        $result = Wallet::recharge(
             $request->input('document_id'),
-            $request->input('name'),
-            $request->input('email'),
-            $request->input('phone')
+           $request->input('phone'),
+           $request->input('amount'),
         );
 
-       return response()->json($result);
+        return response()->json($result);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function payment(Request $request)
+    {
+        $result = Wallet::payment(
+           $request->input('document_id'),
+           $request->input('phone'),
+           $request->input('amount'),
+        );
+
+        return response()->json($result);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function paymentConfirm(Request $request)
+    {
+        $result = Wallet::paymentConfirmation(
+            session_id: $request->input('session_id'),
+            token: $request->input('token')
+        );
+
+        return response()->json($result);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function balanceInquiry(Request $request)
+    {
+        $result = Wallet::balanceInquiry(
+            documentId: $request->input('document_id'),
+            phone: $request->input('phone'),
+        );
+
+        return response()->json($result);
     }
 }

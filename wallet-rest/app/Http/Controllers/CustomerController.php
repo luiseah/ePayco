@@ -3,12 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Facades\Wallet;
-use App\Http\Requests\StoreCustomerRequest;
-use App\Http\Requests\UpdateCustomerRequest;
-use App\Models\Customer;
-use app\Services\WalletService;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use Illuminate\Http\Response;
 
 class CustomerController extends Controller
 {

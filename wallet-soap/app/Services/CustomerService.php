@@ -61,10 +61,25 @@ class CustomerService
     {
         // Fields validation
         $validator = Validator::make($attributes, [
-            'document_id' => ['required', 'string', 'max:20', Rule::unique(Customer::class, 'document_id')],
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255'],
-            'phone' => ['required', 'string', 'max:15']
+            'document_id' => ['required',
+                'string',
+                'max:20',
+                Rule::unique(Customer::class, 'document_id')
+            ],
+            'name' => ['required',
+                'string',
+                'max:255'
+            ],
+            'email' => ['required',
+                'email',
+                'max:255',
+                Rule::unique(Customer::class, 'email'),
+            ],
+            'phone' => ['required',
+                'string',
+                'max:15',
+                Rule::unique(Customer::class, 'phone')
+            ]
         ]);
 
         if ($validator->fails()) {
@@ -81,7 +96,7 @@ class CustomerService
      * If an error occurs, an API response with the error message is returned.
      *
      * @param array $attributes Array of customer attributes (document ID, name, email, phone).
-     * @return \App\Services\Responses\ApiResponse The API response containing the result of the operation.
+     * @return \App\Services\ApiResponse The API response containing the result of the operation.
      */
     public function register($attributes)
     {

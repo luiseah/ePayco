@@ -5,7 +5,6 @@ services:
     restart: unless-stopped
     container_name: webserver
     ports:
-      - 9000:9000
       - 80:80
     volumes:
       - .docker/nginx:/etc/nginx/conf.d
@@ -21,15 +20,12 @@ services:
       dockerfile: Dockerfile
     container_name: soap
     restart: unless-stopped
-    expose:
-      - "9000"
     depends_on:
       - db
       - cache
     links:
       - db
     external_links:
-      - "webserver:wallet.local"
       - "webserver:wallet-soap.local"
     volumes:
       - ./wallet-soap:/var/www
@@ -45,7 +41,6 @@ services:
     volumes:
       - ./wallet-rest:/var/www
     external_links:
-      - "webserver:wallet.local"
       - "webserver:wallet-soap.local"
       - "webserver:wallet-rest.local"
     networks:

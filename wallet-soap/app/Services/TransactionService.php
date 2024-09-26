@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Exceptions\IncompleteCustomerAttributesException;
-use App\Models\Transaction as TransactionM;
+use App\Exceptions\IncompleteTransactionAttributesException;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -19,6 +19,7 @@ class TransactionService
     /**
      * @param $attributes
      * @return mixed
+     * @throws IncompleteTransactionAttributesException
      */
     public function find($attributes)
     {
@@ -26,20 +27,20 @@ class TransactionService
             'session_id' => ['required',
                 'string',
                 'max:40',
-                Rule::exists(TransactionM::class, 'session_id')
+                Rule::exists(Transaction::class, 'session_id')
             ],
             'token' => ['required',
                 'string',
                 'max:6',
-                Rule::exists(TransactionM::class, 'token')
+                Rule::exists(Transaction::class, 'token')
             ],
         ]);
 
         if ($validator->fails()) {
-            throw new IncompleteCustomerAttributesException($validator);
+            throw new IncompleteTransactionAttributesException($validator);
         }
 
-        return \App\Models\Transaction::where([
+        return Transaction::where([
             'session_id' => $attributes['session_id'],
             'token' => $attributes['token']
         ])->firstOrFail();

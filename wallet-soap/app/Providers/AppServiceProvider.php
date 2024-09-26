@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\ApiResponse;
 use App\Services\CustomerService;
-use App\Services\Responses\ApiResponse;
 use App\Services\WalletService;
 use Illuminate\Support\ServiceProvider;
 

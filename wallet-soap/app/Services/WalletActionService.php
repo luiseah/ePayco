@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
-use App\Facades\Transaction;
+use App\Enums\TransactionStatusEnum;
+use App\Enums\TransactionTypeEnum;
+use App\Exceptions\WalletWithInsufficientFundsException;
+use App\Models\Transaction;
 use App\Models\Wallet;
 use Illuminate\Support\Facades\Session;
 
@@ -44,21 +47,29 @@ class WalletActionService
     }
 
     /**
-     * @return Wallet
+     * @param $attributes
+     * @return Transaction
+     * @throws WalletWithInsufficientFundsException
      */
-    public function createPaymentIntent(): Wallet
+    public function createPaymentIntent($attributes): \App\Models\Transaction
     {
+        $amount = $attributes['amount'];
+
+        if($this->wallet->balance < $amount) {
+            throw new WalletWithInsufficientFundsException();
+        }
+
         $transaction = $this->wallet->transactions()
             ->create([
-                'amount' => 0,
+                'amount' => $amount,
                 'session_id' => Session::getId(),
-                'token' => fake()->unique()->randomNumber(6),
-                'type' => 'payment_intent',
-                'status' => 'pending',
+                'token' => fake()->unique()->randomNumber(6, true),
+                'type' => TransactionTypeEnum::Debit,
+                'status' => TransactionStatusEnum::Pending,
             ]);
 
         $this->wallet->customer->tokenNotify($transaction);
 
-        return $this->wallet;
+        return $transaction;
     }
 }

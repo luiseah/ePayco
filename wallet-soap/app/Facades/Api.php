@@ -2,7 +2,7 @@
 
 namespace App\Facades;
 
-use App\Services\Responses\ApiResponse;
+use App\Services\ApiResponse;
 use Illuminate\Support\Facades\Facade;
 
 class Api extends Facade

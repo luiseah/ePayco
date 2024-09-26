@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Notifications\TokenNotification;
+use App\Notifications\PaymentConfirmation;
 use App\Services\WalletActionService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -79,6 +79,6 @@ class Customer extends Model
      */
     public function tokenNotify(Transaction $transaction)
     {
-        $this->notify(new TokenNotification($transaction));
+        $this->notify(new PaymentConfirmation($transaction));
     }
 }

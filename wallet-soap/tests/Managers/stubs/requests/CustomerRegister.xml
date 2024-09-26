@@ -1,0 +1,11 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://wallet-soap.local/api/wallet/server">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <ser:customerRegistration>
+            <documentId>123456789</documentId>
+            <name>Luis Eduardo Alvarez</name>
+            <email>luis@example.com</email>
+            <phone>3216540987</phone>
+        </ser:customerRegistration>
+    </soapenv:Body>
+</soapenv:Envelope>

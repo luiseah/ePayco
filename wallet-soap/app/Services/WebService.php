@@ -3,7 +3,7 @@
 namespace App\Services;
 
 
-use App\Services\Responses\ApiResponse;
+use App\Facades\Customer;
 
 class WebService
 {
@@ -16,11 +16,11 @@ class WebService
      * @param string $name Customer's full name.
      * @param string $email Customer's email address.
      * @param string $phone Customer's phone number.
-     * @return \App\Services\Responses\ApiResponse The API response containing the registration status and data.
+     * @return \App\Services\ApiResponse The API response containing the registration status and data.
      */
     public function customerRegistration(string $documentId, string $name, string $email, string $phone)
     {
-        return \Customer::register([
+        return Customer::register([
             'document_id' => $documentId,
             'name' => $name,
             'email' => $email,
@@ -36,7 +36,7 @@ class WebService
      * @param string $documentId Customer's document ID.
      * @param string $phone Customer's phone number.
      * @param int $amount The amount to be recharged into the wallet.
-     * @return \App\Services\Responses\ApiResponse The API response indicating the recharge status.
+     * @return \App\Services\ApiResponse The API response indicating the recharge status.
      */
     public function recharge(string $documentId, string $phone, int $amount)
     {
@@ -55,7 +55,7 @@ class WebService
      * @param string $documentId Customer's document ID.
      * @param string $phone Customer's phone number.
      * @param int $amount The amount to be deducted for the payment.
-     * @return \App\Services\Responses\ApiResponse The API response indicating the payment status.
+     * @return \App\Services\ApiResponse The API response indicating the payment status.
      */
     public function payment(string $documentId, string $phone, int $amount): ApiResponse
     {
@@ -73,7 +73,7 @@ class WebService
      *
      * @param string $sessionId The session ID of the payment transaction.
      * @param string $token The token used to verify the payment.
-     * @return \App\Services\Responses\ApiResponse The API response confirming the payment.
+     * @return \App\Services\ApiResponse The API response confirming the payment.
      */
     public function paymentConfirmation(string $sessionId, string $token): ApiResponse
     {
@@ -89,18 +89,14 @@ class WebService
      * This method allows the customer to check their wallet balance by providing their document ID and contact details.
      *
      * @param string $documentId Customer's document ID.
-     * @param string $name Customer's full name.
-     * @param string $email Customer's email address.
      * @param string $phone Customer's phone number.
-     * @return \App\Services\Responses\ApiResponse The API response containing the customer's balance details.
+     * @return \App\Services\ApiResponse The API response containing the customer's balance details.
      */
-    public function balanceInquiry(string $documentId, string $name, string $email, string $phone): ApiResponse
+    public function balanceInquiry(string $documentId, string $phone): ApiResponse
     {
         return \Api::response(true, '0', 'Balance inquiry processed successfully', [
             'documentId' => $documentId,
-            'name' => $name,
-            'email' => $email,
-            'mobile' => $phone
+            'phone' => $phone
         ]);
     }
 }
