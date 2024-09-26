@@ -9,8 +9,6 @@ services:
       - 80:80
     volumes:
       - .docker/nginx:/etc/nginx/conf.d
-#    links:
-#      - soap
     depends_on:
       - soap
       - rest
@@ -32,6 +30,7 @@ services:
       - db
     external_links:
       - "webserver:wallet.local"
+      - "webserver:wallet-soap.local"
     volumes:
       - ./wallet-soap:/var/www
     networks:
