@@ -9,7 +9,8 @@ services:
       - 80:80
     volumes:
       - .docker/nginx:/etc/nginx/conf.d
-      - ./backend:/var/www
+#    links:
+#      - soap
     depends_on:
       - soap
       - rest
@@ -22,11 +23,15 @@ services:
       dockerfile: Dockerfile
     container_name: soap
     restart: unless-stopped
+    expose:
+      - "9000"
     depends_on:
       - db
       - cache
     links:
       - db
+    external_links:
+      - "webserver:wallet.local"
     volumes:
       - ./wallet-soap:/var/www
     networks:
@@ -36,15 +41,20 @@ services:
     build:
       context: ./wallet-rest
       dockerfile: Dockerfile
-    container_name: soap
+    container_name: rest
     restart: unless-stopped
     volumes:
-      - ./wallet-soap:/var/www
+      - ./wallet-rest:/var/www
+    external_links:
+      - "webserver:wallet.local"
+      - "webserver:wallet-soap.local"
+      - "webserver:wallet-rest.local"
     networks:
       - wallet-network
 
   db:
     image: mysql:8.0
+    container_name: database
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: wallet
