@@ -66,7 +66,9 @@ class WalletActionService
                 'token' => fake()->unique()->randomNumber(6, true),
                 'type' => TransactionTypeEnum::Debit,
                 'status' => TransactionStatusEnum::Pending,
+                'expires_at' => now()->addMinutes(10),
             ]);
+        $transaction->refresh();
 
         $this->wallet->customer->tokenNotify($transaction);
 

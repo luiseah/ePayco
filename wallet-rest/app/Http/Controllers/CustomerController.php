@@ -13,6 +13,30 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
+        $this->validate($request, [
+            'document_id' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'phone' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+            ],
+        ]);
+
        $result =  Wallet::customerRegistration(
             $request->input('document_id'),
             $request->input('name'),

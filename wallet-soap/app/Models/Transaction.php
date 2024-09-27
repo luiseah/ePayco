@@ -65,7 +65,9 @@ class Transaction extends Model
      *
      * @var array<string>
      */
-    protected $hidden = ['token'];
+    protected $hidden = [
+        'token'
+    ];
 
     /**
      * Get the attributes that should be cast.
@@ -76,7 +78,8 @@ class Transaction extends Model
     {
         return [
             'type' => TransactionTypeEnum::class,
-            'status' => TransactionStatusEnum::class
+            'status' => TransactionStatusEnum::class,
+            'amount' => 'float',
         ];
     }
 

@@ -15,26 +15,28 @@
 
 
 $router->post('customers', [
-    'as' => 'customer', 'uses' => 'CustomerController@store'
+    'as' => 'customers',
+    'uses' => 'CustomerController@store'
 ]);
 
 $router->group(['prefix' => 'wallets'], function () use ($router) {
-    $router->post('/recharges', ['uses' => 'WalletController@recharge']);
+    $router->post('/recharges', [
+        'as' => 'recharges',
+        'uses' => 'WalletController@recharge'
+    ]);
 
-    $router->post('/payments', ['uses' => 'WalletController@payment']);
+    $router->post('/payments', [
+        'as' => 'payments',
+        'uses' => 'WalletController@payment'
+    ]);
 
-    $router->post('/payments/confirm', ['uses' => 'WalletController@payment']);
-});
+    $router->post('/payments/confirm', [
+        'as' => 'payments-confirm',
+        'uses' => 'WalletController@paymentConfirm'
+    ]);
 
-
-$router->get('/', function () use ($router) {
-
-    $wallet = Wallet::customerRegistration('1234567890', 'John Doe', 'luis.alvarez00@usc.edu.co', '3218452593');
-
-//    $result = $client->customerRegistration('1234567890', 'John Doe', 'luis.alvarez00@usc.edu.co', '3218452593');
-
-    dd($wallet);
-//
-//
-//    return $router->app->version();
+    $router->get('/balance-inquiry', [
+        'as' => 'balance-inquiry',
+        'uses' => 'WalletController@balanceInquiry'
+    ]);
 });

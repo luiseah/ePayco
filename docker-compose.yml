@@ -38,6 +38,8 @@ services:
       dockerfile: Dockerfile
     container_name: rest
     restart: unless-stopped
+    depends_on:
+      - cache
     volumes:
       - ./wallet-rest:/var/www
     external_links:

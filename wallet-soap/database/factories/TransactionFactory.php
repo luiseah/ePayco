@@ -24,6 +24,8 @@ class TransactionFactory extends Factory
             'status' => fake()->randomElements(TransactionStatusEnum::cases()),
             'amount' => fake()->randomFloat(2, 1, 1000),
             'token' => fake()->uuid(),
+            'expires_at' => fake()->dateTimeBetween('now', '+10 minutes'),
+            'confirmed_at' => fake()->dateTimeBetween('now', '+10 minutes'),
         ];
     }
 }

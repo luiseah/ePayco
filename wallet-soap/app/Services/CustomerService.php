@@ -113,8 +113,10 @@ class CustomerService
             ];
 
             return \Api::response(true, '00', __('Customer registered successfully'), $data);
-        } catch (\Exception $e) {
+        } catch (IncompleteCustomerAttributesException $e) {
             return \Api::response(false, $e->status, $e->getMessage(), $e->errors());
+        } catch (\Exception $e) {
+            return \Api::response(false, $e->getCode(), $e->getMessage(), []);
         }
     }
 }

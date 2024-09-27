@@ -199,7 +199,7 @@ class WebServiceTest extends TestCase
         ], (array)$response);
     }
 
-    public function test_wallet_payment(): void
+    public function test_wallet_payment__(): void
     {
         Carbon::setTestNow('2024-01-01 00:00:00');
 
@@ -239,14 +239,16 @@ class WebServiceTest extends TestCase
             'message_error' => 'Payment processed successfully.',
             'data' => [
                 'transaction' => [
-                    'amount' => 5000,
-                    'session_id' => 'mocked-session-id',
+                    'id' => 1,
                     'type' => TransactionTypeEnum::Debit->value,
                     'status' => TransactionStatusEnum::Pending->value,
+                    'session_id' => 'mocked-session-id',
+                    'amount' => 5000.0,
+                    'expires_at' => '2024-01-01 00:10:00',
+                    'confirmed_at' => null,
                     'wallet_id' => 1,
-                    'updated_at' => '2024-01-01T00:00:00.000000Z',
                     'created_at' => '2024-01-01T00:00:00.000000Z',
-                    'id' => 1,
+                    'updated_at' => '2024-01-01T00:00:00.000000Z',
                 ]
             ]
         ], (array)$response);
@@ -305,6 +307,8 @@ class WebServiceTest extends TestCase
             'token' => 123456,
             'type' => TransactionTypeEnum::Debit,
             'status' => TransactionStatusEnum::Pending,
+            'expires_at' => now()->addMinutes(10),
+            'confirmed_at' => null,
         ];
 
         $transaction = $this->createTransaction($wallet, $attributes);
@@ -330,20 +334,119 @@ class WebServiceTest extends TestCase
             'cod_error' => '00',
             'message_error' => 'Payment confirmation processed successfully.',
             'data' => [
+                'wallet' => [
+                    'id' => 1,
+                    'balance' => 5000.0,
+                    'customer_id' => 1,
+                    'created_at' => '2024-01-01T00:00:00.000000Z',
+                    'updated_at' => '2024-01-01T00:00:00.000000Z',
+                ],
                 'transaction' => [
                     'id' => 1,
-                    'amount' => 5000.0,
-                    'session_id' => 'mocked-session-id',
                     'type' => TransactionTypeEnum::Debit->value,
-                    'status' => TransactionStatusEnum::Pending->value,
+                    'status' => TransactionStatusEnum::Confirmed->value,
+                    'session_id' => 'mocked-session-id',
+                    'amount' => 5000.0,
+                    'expires_at' => '2024-01-01 00:10:00',
+                    'confirmed_at' => '2024-01-01 00:00:00',
                     'wallet_id' => 1,
                     'created_at' => '2024-01-01T00:00:00.000000Z',
                     'updated_at' => '2024-01-01T00:00:00.000000Z',
-
                 ]
             ]
         ], (array)$response);
-
     }
 
+    public function test_wallet_payment_confirmation_with_invalid_transaction(): void
+    {
+        Carbon::setTestNow('2024-01-01 00:00:00');
+
+        $ws = new WebService();
+
+        $session_id = 'mocked-session-id';
+        $token = 123456;
+
+        $response = $ws->paymentConfirmation($session_id, $token);
+
+        $this->assertDatabaseCount(Transaction::class, 0);
+
+        $this->assertSame([
+            'success' => false,
+            'cod_error' => '422',
+            'message_error' => 'The selected session id is invalid. (and 1 more error)',
+            'data' => [
+                'session_id' => [
+                    'The selected session id is invalid.'
+                ],
+                'token' => [
+                    'The selected token is invalid.'
+                ]
+            ]
+        ], (array)$response);
+    }
+
+    public function test_wallet_balance_inquiry(): void
+    {
+        Carbon::setTestNow('2024-01-01 00:00:00');
+
+        $customerAttributes = [
+            'document_id' => '123456789',
+            'name' => 'John Doe',
+            'email' => 'johndoe@example.com',
+            'phone' => '123456789'
+        ];
+
+        $customer = $this->createCustomer($customerAttributes);
+        $wallet = $this->createWallet($customer, [
+            'balance' => 10000
+        ]);
+
+        $ws = new WebService();
+
+        $response = $ws->balanceInquiry($customerAttributes['document_id'], $customerAttributes['phone']);
+
+        $this->assertSame([
+            'success' => true,
+            'cod_error' => '00',
+            'message_error' => 'Balance inquiry processed successfully.',
+            'data' => [
+                'wallet' => [
+                    'id' => 1,
+                    'balance' => 10000.0,
+                    'customer_id' => 1,
+                    'created_at' => '2024-01-01T00:00:00.000000Z',
+                    'updated_at' => '2024-01-01T00:00:00.000000Z',
+                ]
+            ]
+        ], (array)$response);
+    }
+
+    public function test_wallet_balance_inquiry_with_invalid_customer(): void
+    {
+        Carbon::setTestNow('2024-01-01 00:00:00');
+
+        $ws = new WebService();
+
+        $documentId = '123456789';
+        $phone = '123456789';
+
+        $response = $ws->balanceInquiry($documentId, $phone);
+
+        $this->assertDatabaseCount(Customer::class, 0);
+        $this->assertDatabaseCount(Wallet::class, 0);
+
+        $this->assertSame([
+            'success' => false,
+            'cod_error' => '422',
+            'message_error' => 'The selected document id is invalid. (and 1 more error)',
+            'data' => [
+                'document_id' => [
+                    'The selected document id is invalid.'
+                ],
+                'phone' => [
+                    'The selected phone is invalid.'
+                ]
+            ]
+        ], (array)$response);
+    }
 }

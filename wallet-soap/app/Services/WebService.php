@@ -94,9 +94,9 @@ class WebService
      */
     public function balanceInquiry(string $documentId, string $phone): ApiResponse
     {
-        return \Api::response(true, '0', 'Balance inquiry processed successfully', [
-            'documentId' => $documentId,
-            'phone' => $phone
+        return \Wallet::balanceInquiry([
+            'document_id' => $documentId,
+            'phone' => $phone,
         ]);
     }
 }

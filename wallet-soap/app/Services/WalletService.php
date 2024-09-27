@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\TransactionStatusEnum;
 use App\Exceptions\IncompleteCustomerAttributesException;
+use App\Exceptions\IncompleteTransactionAttributesException;
 use App\Exceptions\IncompleteWalletAttributesException;
 use App\Exceptions\WalletWithInsufficientFundsException;
 use App\Facades\Customer;
@@ -48,7 +49,7 @@ class WalletService
      * @param array $attributes
      * @return \App\Services\ApiResponse The API response indicating the recharge status.
      */
-    public function recharge(array $attributes) : \App\Services\ApiResponse
+    public function recharge(array $attributes): ApiResponse
     {
         try {
             $this->validateFields($attributes);
@@ -62,6 +63,8 @@ class WalletService
             ]);
         } catch (IncompleteCustomerAttributesException $e) {
             return \Api::response(false, $e->status, $e->getMessage(), $e->errors());
+        } catch (\Exception $e) {
+            return \Api::response(false, $e->getCode(), $e->getMessage(), []);
         }
     }
 
@@ -80,7 +83,7 @@ class WalletService
      * @param array $attributes
      * @return \App\Services\ApiResponse
      */
-    public function payment(array $attributes) : \App\Services\ApiResponse
+    public function payment(array $attributes): ApiResponse
     {
         try {
             $this->validateFields($attributes);
@@ -94,6 +97,8 @@ class WalletService
             }
 
             $transaction = $customer->services()->createPaymentIntent($attributes);
+
+            $transaction->makeHidden('token');
 
             return \Api::response(true, '00', __('Payment processed successfully.'), [
                 'transaction' => $transaction->toArray()
@@ -109,7 +114,7 @@ class WalletService
      * @param array $attributes
      * @return \App\Services\ApiResponse
      */
-    public function paymentConfirmation(array $attributes) : \App\Services\ApiResponse
+    public function paymentConfirmation(array $attributes): ApiResponse
     {
         try {
             $transaction = Transaction::find($attributes);
@@ -118,16 +123,21 @@ class WalletService
 
             $transaction->update([
                 'status' => TransactionStatusEnum::Confirmed,
-                'confirmed_at' => now(),
+                'confirmed_at' => now()->toDateTimeString(),
                 'token' => '000000'
             ]);
+
+            $transaction->unsetRelation('wallet');
+            $transaction->refresh();
 
             return \Api::response(true, '00', __('Payment confirmation processed successfully.'), [
                 'wallet' => $wallet->toArray(),
                 'transaction' => $transaction->toArray()
             ]);
-        } catch (IncompleteCustomerAttributesException $e) {
+        } catch (IncompleteTransactionAttributesException $e) {
             return \Api::response(false, $e->status, $e->getMessage(), $e->errors());
+        } catch (\Exception $e) {
+            return \Api::response(false, $e->getCode(), $e->getMessage(), []);
         }
     }
 
@@ -163,10 +173,12 @@ class WalletService
             $wallet = $customer->wallet;
 
             return \Api::response(true, '00', __('Balance inquiry processed successfully.'), [
-                'wallet' => $wallet->getKey()
+                'wallet' => $wallet->toArray()
             ]);
-        } catch (IncompleteCustomerAttributesException $e) {
+        } catch (IncompleteWalletAttributesException $e) {
             return \Api::response(false, $e->status, $e->getMessage(), $e->errors());
+        } catch (\Exception $e) {
+            return \Api::response(false, $e->getCode(), $e->getMessage(), []);
         }
     }
 }

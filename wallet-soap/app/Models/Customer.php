@@ -34,10 +34,8 @@ use Illuminate\Notifications\Notifiable;
  * @method static \Illuminate\Database\Eloquent\Builder|Customer whereUpdatedAt($value)
  * @mixin \Eloquent
  */
-class Customer extends Model
+class Customer extends User
 {
-    use HasFactory, Notifiable;
-
     /**
      * The attributes that are mass assignable.
      *
